@@ -30,32 +30,34 @@
     </div>
 
     <script>
-        const BACKEND_URL = 'https://sistema-distribuido-mqtt.onrender.com';
+        const BACKEND_URL = 'https://psychic-couscous-j6qxrr7jgvr3qp56-3000.app.github.dev';
 
-        // Função para buscar a temperatura no Backend a cada 2 segundos
-        async function buscarTemperatura() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/temperatura`);
-                const data = await response.json();
-                document.getElementById('temp-val').innerText = data.temperatura;
-            } catch (error) {
-                console.error("Erro ao buscar temperatura:", error);
-            }
-        }
+// Função para buscar a temperatura no Backend a cada 2 segundos
+async function buscarTemperatura() {
+    try {
+        // CORRIGIDO: Adicionado /api antes de /temperatura
+        const response = await fetch(`${BACKEND_URL}/api/temperatura`);
+        const data = await response.json();
+        document.getElementById('temp-val').innerText = data.temperatura;
+    } catch (error) {
+        console.error("Erro ao buscar temperatura:", error);
+    }
+}
 
-        // Função para enviar o comando de clique do botão para o Backend
-        async function enviarComando(valor) {
-            try {
-                await fetch(`${BACKEND_URL}/led`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ comando: valor })
-                });
-                console.log(`Comando ${valor} enviado ao backend.`);
-            } catch (error) {
-                console.error("Erro ao enviar comando:", error);
-            }
-        }
+// Função para enviar o comando de clique do botão para o Backend
+async function enviarComando(valor) {
+    try {
+        // CORRIGIDO: Adicionado /api antes de /led
+        await fetch(`${BACKEND_URL}/api/led`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comando: valor })
+        });
+        console.log(`Comando ${valor} enviado ao backend.`);
+    } catch (error) {
+        console.error("Erro ao enviar comando:", error);
+    }
+}
 
         // Fica perguntando a temperatura para o backend a cada 2000ms (2 segundos)
         setInterval(buscarTemperatura, 2000);
