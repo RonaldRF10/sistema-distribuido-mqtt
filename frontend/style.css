@@ -1,48 +1,117 @@
-/* Configurações Gerais da Página */
+/* Reset e Grid de Mercado */
 body {
     background-color: #f3f4f6;
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    padding: 2rem;
     margin: 0;
-    font-family: sans-serif;
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Card Principal do Painel */
+/* Layout Responsivo em Grade para os Cards */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 64rem;
+}
+
+/* Quando a tela for grande (Desktop), divide em colunas */
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .chart-card {
+        grid-column: span 2; /* O gráfico ocupa a largura total embaixo */
+    }
+}
+
+/* Design Moderno dos Cards */
 .dashboard-card {
     background-color: #ffffff;
     padding: 2rem;
-    border-radius: 1rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 28rem;
-    text-align: center;
+    border-radius: 1.25rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 h1 {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #111827;
+    margin-top: 0;
     margin-bottom: 1.5rem;
+    border-bottom: 2px solid #f3f4f6;
+    padding-bottom: 0.5rem;
 }
 
 h2 {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
     margin: 0;
 }
 
-/* Bloco de Exibição da Temperatura */
+/* Card de Status da Conexão */
+.status-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 100%;
+    justify-content: center;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.border-top {
+    border-top: 1px solid #f3f4f6;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+}
+
+/* Badges de Conexão (Verde / Vermelho) */
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+}
+
+.badge-red {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.badge-green {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.txt-destaque {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* Área do Sensor de Temperatura */
 .container-temperatura {
     background-color: #eff6ff;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: 0.75rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.25rem;
     border: 1px solid #dbeafe;
+    text-align: center;
 }
 
 .container-temperatura h2 {
@@ -50,18 +119,19 @@ h2 {
 }
 
 .txt-temperatura {
-    font-size: 3rem;
+    font-size: 3.5rem;
     font-weight: 900;
     color: #1e3a8a;
     margin: 0.5rem 0 0 0;
 }
 
-/* Bloco de Controle do LED */
+/* Área de Controle do LED */
 .container-led {
     background-color: #f9fafb;
-    padding: 1.5rem;
+    padding: 1.25rem;
     border-radius: 0.75rem;
     border: 1px solid #e5e7eb;
+    text-align: center;
 }
 
 .container-led h2 {
@@ -75,7 +145,7 @@ h2 {
     gap: 1rem;
 }
 
-/* Estilização dos Botões */
+/* Botões Modernos */
 .btn {
     color: #ffffff;
     font-weight: 700;
@@ -83,21 +153,19 @@ h2 {
     border-radius: 0.5rem;
     border: none;
     cursor: pointer;
-    transition: background-color 0.2s;
+    flex: 1;
+    transition: all 0.2s;
 }
 
-.btn-ligar {
-    background-color: #22c55e;
-}
+.btn-ligar { background-color: #22c55e; }
+.btn-ligar:hover { background-color: #16a34a; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2); }
 
-.btn-ligar:hover {
-    background-color: #16a34a;
-}
+.btn-desligar { background-color: #ef4444; }
+.btn-desligar:hover { background-color: #dc2626; box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2); }
 
-.btn-desligar {
-    background-color: #ef4444;
-}
-
-.btn-desligar:hover {
-    background-color: #dc2626;
+/* Container do Gráfico */
+.chart-container {
+    position: relative;
+    height: 250px;
+    width: 100%;
 }

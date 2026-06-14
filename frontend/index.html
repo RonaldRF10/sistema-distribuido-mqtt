@@ -3,48 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Casa Inteligente</title>
+    <title>Dashboard IoT - Casa Inteligente</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <div class="dashboard-card">
-        <h1>Painel via API Backend</h1>
-
-        <div class="container-temperatura">
-            <h2>Temperatura</h2>
-            <p class="txt-temperatura"><span id="temp-val">--</span>°C</p>
-        </div>
-
-        <div class="container-led">
-            <h2>Controle do LED</h2>
-            <div class="grupo-botoes">
-                <button onclick="enviarComando('1')" class="btn btn-ligar">
-                    Ligar
-                </button>
-                <button onclick="enviarComando('0')" class="btn btn-desligar">
-                    Desligar
-                </button>
+    <div class="dashboard-grid">
+        
+        <div class="dashboard-card status-card">
+            <h1>Status da Rede IoT</h1>
+            <div class="status-group">
+                <div class="status-item">
+                    <span>API Backend:</span>
+                    <span id="status-backend" class="badge badge-red">Desconectado</span>
+                </div>
+                <div class="status-item">
+                    <span>Dispositivo (Wokwi):</span>
+                    <span id="status-wokwi" class="badge badge-red">Offline</span>
+                </div>
+                <div class="status-item border-top">
+                    <span>Módulos Ativos:</span>
+                    <span id="device-count" class="txt-destaque">0</span>
+                </div>
             </div>
         </div>
+
+        <div class="dashboard-card">
+            <h1>Leitura em Tempo Real</h1>
+            <div class="container-temperatura">
+                <h2>Temperatura do Quarto</h2>
+                <p class="txt-temperatura"><span id="temp-val">--</span>°C</p>
+            </div>
+
+            <div class="container-led">
+                <h2>Controle de Atuadores (LED)</h2>
+                <div class="grupo-botoes">
+                    <button onclick="enviarComando('1')" class="btn btn-ligar">Ligar Luz</button>
+                    <button onclick="enviarComando('0')" class="btn btn-desligar">Desligar Luz</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card chart-card">
+            <h1>Histórico de Variação Térmica</h1>
+            <div class="chart-container">
+                <canvas id="historicoGrafico"></canvas>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // Mantendo a sua URL do Codespaces atualizada
         const BACKEND_URL = 'https://sistema-distribuido-mqtt.onrender.com';
+        
+        // Variáveis de controle para o validador do Wokwi
+        let ultimaLeituraCount = 0;
+        let segundosSemDados = 0;
+        let graficoChart;
 
-        // Busca a temperatura no Backend a cada 2 segundos
-        async function buscarTemperatura() {
+        // --- INICIALIZAÇÃO DO GRÁFICO (Padrão de Mercado) ---
+        const ctx = document.getElementById('historicoGrafico').getContext('2d');
+        graficoChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [], // Horários vão aqui
+                datasets: [{
+                    label: 'Temperatura (°C)',
+                    data: [], // Valores numéricos vão aqui
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.3, // Curvatura da linha do gráfico
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { min: 0, max: 50 } // Escala ideal para ambiente residencial
+                }
+            }
+        });
+
+        // --- FUNÇÃO: BUSCAR DADOS DO BACKEND (POLLING) ---
+        async function atualizarDashboard() {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/temperatura`);
-                const data = await response.json();
-                document.getElementById('temp-val').innerText = data.temperatura;
+                // 1. Busca temperatura atual
+                const resTemp = await fetch(`${BACKEND_URL}/api/temperatura`);
+                const dataTemp = await resTemp.json();
+                document.getElementById('temp-val').innerText = dataTemp.temperatura;
+                
+                // Se a API respondeu, o backend está Online
+                document.getElementById('status-backend').innerText = "Online";
+                document.getElementById('status-backend').className = "badge badge-green";
+
+                // 2. Busca histórico para o gráfico e validação do Wokwi
+                const resHist = await fetch(`${BACKEND_URL}/api/historico`);
+                const dataHist = await resHist.json();
+
+                if (dataHist.length > 0) {
+                    // Atualiza o contador de dispositivos (baseado no wildcard do backend)
+                    document.getElementById('device-count').innerText = "1 Unidade (Quarto)";
+
+                    // LÓGICA DO VALIDADOR WOKWI: Verifica se novos dados estão chegando
+                    if (dataHist.length === ultimaLeituraCount) {
+                        segundosSemDados += 2; // Loop roda a cada 2s
+                    } else {
+                        segundosSemDados = 0; // Reset se chegou dado novo
+                        ultimaLeituraCount = dataHist.length;
+                    }
+
+                    // Se ficar mais de 10 segundos sem receber novos dados do MQTT, assume Offline
+                    if (segundosSemDados >= 10 || dataTemp.temperatura === "--") {
+                        document.getElementById('status-wokwi').innerText = "Offline";
+                        document.getElementById('status-wokwi').className = "badge badge-red";
+                    } else {
+                        document.getElementById('status-wokwi').innerText = "Conectado";
+                        document.getElementById('status-wokwi').className = "badge badge-green";
+                    }
+
+                    // Atualiza os dados do gráfico dinamicamente
+                    const labels = dataHist.map(item => item.horario);
+                    const valores = dataHist.map(item => item.temperatura);
+
+                    graficoChart.data.labels = labels;
+                    graficoChart.data.datasets[0].data = valores;
+                    graficoChart.update('none'); // Update suave sem animação brusca
+                }
+
             } catch (error) {
-                console.error("Erro ao buscar temperatura:", error);
+                console.error("Erro na comunicação com a API:", error);
+                // Se falhar o fetch, tudo caiu
+                document.getElementById('status-backend').innerText = "Erro API";
+                document.getElementById('status-backend').className = "badge badge-red";
+                document.getElementById('status-wokwi').innerText = "Offline";
+                document.getElementById('status-wokwi').className = "badge badge-red";
+                document.getElementById('device-count').innerText = "0";
             }
         }
 
-        // Envia o comando de clique do botão para o Backend
+        // --- FUNÇÃO: COMANDO DO LED ---
         async function enviarComando(valor) {
             try {
                 await fetch(`${BACKEND_URL}/api/led`, {
@@ -52,14 +152,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ comando: valor })
                 });
-                console.log(`Comando ${valor} enviado ao backend.`);
+                console.log(`Comando ${valor} enviado.`);
             } catch (error) {
                 console.error("Erro ao enviar comando:", error);
             }
         }
 
-        // Executa a busca em loop
-        setInterval(buscarTemperatura, 2000);
+        // Executa a atualização a cada 2 segundos
+        setInterval(atualizarDashboard, 2000);
     </script>
 </body>
 </html>
