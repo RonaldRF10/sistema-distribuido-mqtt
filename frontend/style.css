@@ -1,0 +1,103 @@
+/* Configurações Gerais da Página */
+body {
+    background-color: #f3f4f6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    margin: 0;
+    font-family: sans-serif;
+}
+
+/* Card Principal do Painel */
+.dashboard-card {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 28rem;
+    text-align: center;
+}
+
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+}
+
+h2 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Bloco de Exibição da Temperatura */
+.container-temperatura {
+    background-color: #eff6ff;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #dbeafe;
+}
+
+.container-temperatura h2 {
+    color: #2563eb;
+}
+
+.txt-temperatura {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #1e3a8a;
+    margin: 0.5rem 0 0 0;
+}
+
+/* Bloco de Controle do LED */
+.container-led {
+    background-color: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid #e5e7eb;
+}
+
+.container-led h2 {
+    color: #4b5563;
+    margin-bottom: 1rem;
+}
+
+.grupo-botoes {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+/* Estilização dos Botões */
+.btn {
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-ligar {
+    background-color: #22c55e;
+}
+
+.btn-ligar:hover {
+    background-color: #16a34a;
+}
+
+.btn-desligar {
+    background-color: #ef4444;
+}
+
+.btn-desligar:hover {
+    background-color: #dc2626;
+}

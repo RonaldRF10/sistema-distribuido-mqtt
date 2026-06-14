@@ -4,25 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Casa Inteligente</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
+<body>
 
-    <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center">
-        <h1 class="text-2xl font-bold text-gray-800 mb-6">Painel via API Backend</h1>
+    <div class="dashboard-card">
+        <h1>Painel via API Backend</h1>
 
-        <div class="bg-blue-50 p-6 rounded-xl mb-6 border border-blue-100">
-            <h2 class="text-sm font-semibold text-blue-600 uppercase">Temperatura</h2>
-            <p class="text-5xl font-black text-blue-900 mt-2"><span id="temp-val">--</span>°C</p>
+        <div class="container-temperatura">
+            <h2>Temperatura</h2>
+            <p class="txt-temperatura"><span id="temp-val">--</span>°C</p>
         </div>
 
-        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
-            <h2 class="text-sm font-semibold text-gray-600 uppercase mb-4">Controle do LED</h2>
-            <div class="flex justify-center gap-4">
-                <button onclick="enviarComando('1')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition">
+        <div class="container-led">
+            <h2>Controle do LED</h2>
+            <div class="grupo-botoes">
+                <button onclick="enviarComando('1')" class="btn btn-ligar">
                     Ligar
                 </button>
-                <button onclick="enviarComando('0')" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition">
+                <button onclick="enviarComando('0')" class="btn btn-desligar">
                     Desligar
                 </button>
             </div>
@@ -30,36 +30,35 @@
     </div>
 
     <script>
-        const BACKEND_URL = 'https://psychic-couscous-j6qxrr7jgvr3qp56-3000.app.github.dev';
+        // Mantendo a sua URL do Codespaces atualizada
+        const BACKEND_URL = 'https://sistema-distribuido-mqtt.onrender.com';
 
-// Função para buscar a temperatura no Backend a cada 2 segundos
-async function buscarTemperatura() {
-    try {
-        // CORRIGIDO: Adicionado /api antes de /temperatura
-        const response = await fetch(`${BACKEND_URL}/api/temperatura`);
-        const data = await response.json();
-        document.getElementById('temp-val').innerText = data.temperatura;
-    } catch (error) {
-        console.error("Erro ao buscar temperatura:", error);
-    }
-}
+        // Busca a temperatura no Backend a cada 2 segundos
+        async function buscarTemperatura() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/temperatura`);
+                const data = await response.json();
+                document.getElementById('temp-val').innerText = data.temperatura;
+            } catch (error) {
+                console.error("Erro ao buscar temperatura:", error);
+            }
+        }
 
-// Função para enviar o comando de clique do botão para o Backend
-async function enviarComando(valor) {
-    try {
-        // CORRIGIDO: Adicionado /api antes de /led
-        await fetch(`${BACKEND_URL}/api/led`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ comando: valor })
-        });
-        console.log(`Comando ${valor} enviado ao backend.`);
-    } catch (error) {
-        console.error("Erro ao enviar comando:", error);
-    }
-}
+        // Envia o comando de clique do botão para o Backend
+        async function enviarComando(valor) {
+            try {
+                await fetch(`${BACKEND_URL}/api/led`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ comando: valor })
+                });
+                console.log(`Comando ${valor} enviado ao backend.`);
+            } catch (error) {
+                console.error("Erro ao enviar comando:", error);
+            }
+        }
 
-        // Fica perguntando a temperatura para o backend a cada 2000ms (2 segundos)
+        // Executa a busca em loop
         setInterval(buscarTemperatura, 2000);
     </script>
 </body>
