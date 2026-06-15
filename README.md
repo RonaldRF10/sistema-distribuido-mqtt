@@ -6,7 +6,6 @@
 ### 👥 Integrantes da Equipe
 * Ronald Roland Filho
 * Vitor Kazuma
-* Victor Morais
 
 ---
 
